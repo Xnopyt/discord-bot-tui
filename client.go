@@ -21,6 +21,7 @@ var history *tui.Box
 var running = false
 var cchan string
 var cguild string
+var t *tui.Theme
 
 func init() {
 	clear = make(map[string]func())
@@ -34,6 +35,14 @@ func init() {
 		cmd.Stdout = os.Stdout
 		cmd.Run()
 	}
+	t = tui.NewTheme()
+	t.SetStyle("normal", tui.Style{Bg: tui.ColorBlack, Fg: tui.ColorWhite})
+	t.SetStyle("label.magenta", tui.Style{Bg: tui.ColorBlack, Fg: tui.ColorMagenta})
+	t.SetStyle("label.red", tui.Style{Bg: tui.ColorBlack, Fg: tui.ColorRed})
+	t.SetStyle("label.green", tui.Style{Bg: tui.ColorBlack, Fg: tui.ColorGreen})
+	t.SetStyle("input.green", tui.Style{Bg: tui.ColorBlack, Fg: tui.ColorGreen})
+	t.SetStyle("label.cyan", tui.Style{Bg: tui.ColorBlack, Fg: tui.ColorCyan})
+	t.SetStyle("label.yellow", tui.Style{Bg: tui.ColorBlack, Fg: tui.ColorYellow})
 }
 
 func callClear() {
@@ -116,10 +125,16 @@ func recvMsg(s *discordgo.Session, m *discordgo.MessageCreate) {
 			}
 			ctime = strconv.Itoa(hr) + ":" + min
 		}
+		l1 := tui.NewLabel(ctime)
+		l1.SetStyleName("red")
+		l2 := tui.NewLabel(fmt.Sprintf("<%s>", cname))
+		l2.SetStyleName("green")
+		l3 := tui.NewLabel(m.Content)
+		l3.SetStyleName("cyan")
 		history.Append(tui.NewHBox(
-			tui.NewLabel(ctime),
-			tui.NewPadder(1, 0, tui.NewLabel(fmt.Sprintf("<%s>", cname))),
-			tui.NewLabel(m.Content),
+			l1,
+			tui.NewPadder(1, 0, l2),
+			l3,
 			tui.NewSpacer(),
 		))
 		ui.Repaint()
@@ -191,12 +206,22 @@ func run(s *discordgo.Session) {
 	channel := txtChannels[selc]
 	callClear()
 	color.Magenta.Println("Now Loading...")
+	l1 := tui.NewLabel("Discord Bot TUI")
+	l1.SetStyleName("magenta")
+	l2 := tui.NewLabel("  By Xnopyt\n\n")
+	l2.SetStyleName("red")
+	l3 := tui.NewLabel(s.State.User.Username + "#" + s.State.User.Discriminator)
+	l3.SetStyleName("cyan")
+	l4 := tui.NewLabel("\nServer:\n" + guild.Name)
+	l4.SetStyleName("green")
+	l5 := tui.NewLabel("\nChannel:\n" + channel.Name)
+	l5.SetStyleName("green")
 	sidebar := tui.NewVBox(
-		tui.NewLabel("Discord Bot TUI"),
-		tui.NewLabel("  By Xnopyt\n\n"),
-		tui.NewLabel(s.State.User.Username+"#"+s.State.User.Discriminator),
-		tui.NewLabel("\nServer:\n"+guild.Name),
-		tui.NewLabel("\nChannel:\n"+channel.Name),
+		l1,
+		l2,
+		l3,
+		l4,
+		l5,
 		tui.NewSpacer(),
 	)
 	sidebar.SetBorder(true)
@@ -234,10 +259,16 @@ func run(s *discordgo.Session) {
 			}
 			ctime = strconv.Itoa(hr) + ":" + min
 		}
+		l6 := tui.NewLabel(ctime)
+		l6.SetStyleName("red")
+		l7 := tui.NewLabel(fmt.Sprintf("<%s>", cname))
+		l7.SetStyleName("green")
+		l8 := tui.NewLabel(v.Content)
+		l8.SetStyleName("cyan")
 		history.Append(tui.NewHBox(
-			tui.NewLabel(ctime),
-			tui.NewPadder(1, 0, tui.NewLabel(fmt.Sprintf("<%s>", cname))),
-			tui.NewLabel(v.Content),
+			l6,
+			tui.NewPadder(1, 0, l7),
+			l8,
 			tui.NewSpacer(),
 		))
 	}
@@ -270,6 +301,8 @@ func run(s *discordgo.Session) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	ui.SetTheme(t)
 
 	ui.SetKeybinding("Esc", func() {
 		ui.Quit()
