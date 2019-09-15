@@ -193,10 +193,10 @@ func run(s *discordgo.Session) {
 	color.Magenta.Println("Now Loading...")
 	sidebar := tui.NewVBox(
 		tui.NewLabel("Discord Bot TUI"),
-		tui.NewLabel("By Xnopyt"),
+		tui.NewLabel("  By Xnopyt\n\n"),
 		tui.NewLabel(s.State.User.Username+"#"+s.State.User.Discriminator),
-		tui.NewLabel("Server: "+guild.Name),
-		tui.NewLabel("Channel: "+channel.Name),
+		tui.NewLabel("\nServer:\n"+guild.Name),
+		tui.NewLabel("\nChannel:\n"+channel.Name),
 		tui.NewSpacer(),
 	)
 	sidebar.SetBorder(true)
