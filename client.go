@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"runtime"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
@@ -81,7 +82,7 @@ func main() {
 	reader := bufio.NewReader(os.Stdin)
 	color.Cyan.Print("Enter Token: ")
 	text, _ := reader.ReadString('\n')
-	token := text[:len(text)-1]
+	token := strings.TrimSuffix(text[:len(text)-1], "\r")
 	callClear()
 	color.Magenta.Println("Connecting to Discord....")
 	s, err := discordgo.New("Bot " + token)
@@ -184,7 +185,7 @@ func run(s *discordgo.Session) {
 	fmt.Print("\n\n>")
 	reader := bufio.NewReader(os.Stdin)
 	text, _ := reader.ReadString('\n')
-	text = text[:len(text)-1]
+	text = strings.TrimSuffix(text[:len(text)-1], "\r")
 	if text == "q" {
 		callClear()
 		os.Exit(0)
@@ -220,7 +221,7 @@ func run(s *discordgo.Session) {
 	}
 	fmt.Print("\n\n>")
 	text, _ = reader.ReadString('\n')
-	text = text[:len(text)-1]
+	text = strings.TrimSuffix(text[:len(text)-1], "\r")
 	selc, err = strconv.Atoi(text)
 	if err != nil {
 		log.Fatal("Invalid Selection")
