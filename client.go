@@ -156,6 +156,48 @@ func recvMsg(s *discordgo.Session, m *discordgo.MessageCreate) {
 			}
 			ctime = strconv.Itoa(hr) + ":" + min
 		}
+		for _, z := range m.Attachments {
+			if m.Content == "" {
+				m.Content = z.URL
+			} else {
+				m.Content += "\n" + z.URL
+			}
+		}
+		for _, z := range m.Embeds {
+			if m.Content != "" {
+				m.Content += "\n" + "Embed:"
+			}
+			if z.Title != "" {
+				m.Content += "\n" + z.Title
+			}
+			if z.Description != "" {
+				m.Content += "\n" + z.Description
+			}
+			if z.URL != "" {
+				m.Content += "\n" + z.URL
+			}
+			if z.Description != "" {
+				m.Content += "\n" + z.Description
+			}
+			if z.Image != nil {
+				m.Content += "\n" + z.Image.URL
+			}
+			if z.Thumbnail != nil {
+				m.Content += "\n" + z.Thumbnail.URL
+			}
+			if z.Video != nil {
+				m.Content += "\n" + z.Video.URL
+			}
+			for _, f := range z.Fields {
+				m.Content += "\n" + f.Name + ": " + f.Value
+			}
+			if z.Provider != nil {
+				m.Content += "\n" + "Provider: " + z.Provider.Name + " (" + z.Provider.URL + ")"
+			}
+			if z.Footer != nil {
+				m.Content += "\n" + z.Footer.Text + " " + z.Footer.IconURL
+			}
+		}
 		l1 := tui.NewLabel(ctime)
 		l1.SetStyleName("red")
 		l2 := tui.NewLabel(fmt.Sprintf("<%s>", cname))
@@ -386,6 +428,48 @@ func run(s *discordgo.Session) {
 			icm := int(cm)
 			if y != cy || im != icm || d != cd {
 				ctime = strconv.Itoa(d) + "/" + strconv.Itoa(im) + "/" + strconv.Itoa(y)[2:]
+			}
+		}
+		for _, z := range v.Attachments {
+			if v.Content == "" {
+				v.Content = z.URL
+			} else {
+				v.Content += "\n" + z.URL
+			}
+		}
+		for _, z := range v.Embeds {
+			if v.Content != "" {
+				v.Content += "\n" + "Embed:"
+			}
+			if z.Title != "" {
+				v.Content += "\n" + z.Title
+			}
+			if z.Description != "" {
+				v.Content += "\n" + z.Description
+			}
+			if z.URL != "" {
+				v.Content += "\n" + z.URL
+			}
+			if z.Description != "" {
+				v.Content += "\n" + z.Description
+			}
+			if z.Image != nil {
+				v.Content += "\n" + z.Image.URL
+			}
+			if z.Thumbnail != nil {
+				v.Content += "\n" + z.Thumbnail.URL
+			}
+			if z.Video != nil {
+				v.Content += "\n" + z.Video.URL
+			}
+			for _, f := range z.Fields {
+				v.Content += "\n" + f.Name + ": " + f.Value
+			}
+			if z.Provider != nil {
+				v.Content += "\n" + "Provider: " + z.Provider.Name + " (" + z.Provider.URL + ")"
+			}
+			if z.Footer != nil {
+				v.Content += "\n" + z.Footer.Text + " " + z.Footer.IconURL
 			}
 		}
 		l6 := tui.NewLabel(ctime)
