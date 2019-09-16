@@ -230,7 +230,7 @@ func run(s *discordgo.Session) {
 	for i, v := range guilds {
 		fmt.Println(strconv.Itoa(i+1) + ": " + v.Name)
 	}
-	fmt.Println("d: DM User")
+	fmt.Println("\nd: DM User")
 	fmt.Println("q: Quit")
 	fmt.Print("\n\n>")
 	reader := bufio.NewReader(os.Stdin)
