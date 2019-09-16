@@ -377,10 +377,20 @@ func run(s *discordgo.Session) {
 	}
 	callClear()
 	color.Magenta.Println("Now Loading...")
-	l1 := tui.NewLabel("  Discord Bot TUI  ")
+	l1 := tui.NewLabel("Discord Bot TUI")
 	l1.SetStyleName("magenta")
-	l2 := tui.NewLabel("    By Xnopyt\n\n")
+	l2 := tui.NewLabel("By Xnopyt\n\n")
 	l2.SetStyleName("red")
+	h1 := tui.NewHBox(
+		tui.NewSpacer(),
+		l1,
+		tui.NewSpacer(),
+	)
+	h2 := tui.NewHBox(
+		tui.NewSpacer(),
+		l2,
+		tui.NewSpacer(),
+	)
 	l3 := tui.NewLabel(s.State.User.Username + "#" + s.State.User.Discriminator)
 	l3.SetStyleName("cyan")
 	var l4 *tui.Label
@@ -397,8 +407,8 @@ func run(s *discordgo.Session) {
 	l4.SetStyleName("green")
 	l5.SetStyleName("green")
 	sidebar := tui.NewVBox(
-		l1,
-		l2,
+		h1,
+		h2,
 		l3,
 		l4,
 		l5,
