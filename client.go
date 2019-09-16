@@ -45,7 +45,6 @@ func init() {
 	t.SetStyle("label.magenta", tui.Style{Bg: tui.ColorBlack, Fg: tui.ColorMagenta})
 	t.SetStyle("label.red", tui.Style{Bg: tui.ColorBlack, Fg: tui.ColorRed})
 	t.SetStyle("label.green", tui.Style{Bg: tui.ColorBlack, Fg: tui.ColorGreen})
-	t.SetStyle("input.green", tui.Style{Bg: tui.ColorBlack, Fg: tui.ColorGreen})
 	t.SetStyle("label.cyan", tui.Style{Bg: tui.ColorBlack, Fg: tui.ColorCyan})
 	t.SetStyle("label.yellow", tui.Style{Bg: tui.ColorBlack, Fg: tui.ColorYellow})
 }
