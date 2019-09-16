@@ -8,12 +8,14 @@ import (
 	"os/exec"
 	"runtime"
 	"strconv"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/gookit/color"
 	"github.com/marcusolsson/tui-go"
 )
 
+var memberCache []*discordgo.Member
 var clear map[string]func()
 var ready = make(chan bool)
 var ui tui.UI
@@ -102,10 +104,27 @@ func main() {
 }
 
 func recvMsg(s *discordgo.Session, m *discordgo.MessageCreate) {
+	if !running {
+		return
+	}
 	if m.ChannelID == cchan {
 		var cname string
 		var ctime string
-		member, err := s.GuildMember(cguild, m.Author.ID)
+		var err error
+		var member *discordgo.Member
+		member = nil
+		err = nil
+		for _, z := range memberCache {
+			if z.User.ID == m.Author.ID {
+				member = z
+			}
+		}
+		if member == nil {
+			member, err = s.GuildMember(cguild, m.Author.ID)
+			if err == nil {
+				memberCache = append(memberCache, member)
+			}
+		}
 		if err != nil {
 			cname = m.Author.Username
 		} else {
@@ -146,6 +165,9 @@ func recvMsg(s *discordgo.Session, m *discordgo.MessageCreate) {
 }
 
 func run(s *discordgo.Session) {
+	running = false
+	cguild = ""
+	cchan = ""
 	callClear()
 	fmt.Print("Logged in as ")
 	color.Red.Print(s.State.User.Username)
@@ -210,9 +232,9 @@ func run(s *discordgo.Session) {
 	channel := txtChannels[selc]
 	callClear()
 	color.Magenta.Println("Now Loading...")
-	l1 := tui.NewLabel("Discord Bot TUI")
+	l1 := tui.NewLabel("  Discord Bot TUI  ")
 	l1.SetStyleName("magenta")
-	l2 := tui.NewLabel("  By Xnopyt\n\n")
+	l2 := tui.NewLabel("    By Xnopyt\n\n")
 	l2.SetStyleName("red")
 	l3 := tui.NewLabel(s.State.User.Username + "#" + s.State.User.Discriminator)
 	l3.SetStyleName("cyan")
@@ -232,14 +254,33 @@ func run(s *discordgo.Session) {
 
 	history = tui.NewVBox()
 
-	msgs, _ := s.ChannelMessages(channel.ID, 25, "", "", "")
+	msgs, _ := s.ChannelMessages(channel.ID, 100, "", "", "")
 	for i, j := 0, len(msgs)-1; i < j; i, j = i+1, j-1 {
 		msgs[i], msgs[j] = msgs[j], msgs[i]
 	}
+	color.Red.Printf("Processing Channel history: 0/" + strconv.Itoa(len(msgs)))
+	memberCache = []*discordgo.Member{}
+	x := 1
 	for _, v := range msgs {
+		color.Red.Printf("\rProcessing Channel history: %d/"+strconv.Itoa(len(msgs)), x)
+		x++
 		var cname string
 		var ctime string
-		member, err := s.GuildMember(guild.ID, v.Author.ID)
+		var err error
+		var member *discordgo.Member
+		member = nil
+		err = nil
+		for _, z := range memberCache {
+			if z.User.ID == v.Author.ID {
+				member = z
+			}
+		}
+		if member == nil {
+			member, err = s.GuildMember(guild.ID, v.Author.ID)
+			if err == nil {
+				memberCache = append(memberCache, member)
+			}
+		}
 		if err != nil {
 			cname = v.Author.Username
 		} else {
@@ -262,6 +303,13 @@ func run(s *discordgo.Session) {
 				min = strconv.Itoa(mi)
 			}
 			ctime = strconv.Itoa(hr) + ":" + min
+			y, m, d := times.Date()
+			cy, cm, cd := time.Now().Date()
+			im := int(m)
+			icm := int(cm)
+			if y != cy || im != icm || d != cd {
+				ctime = strconv.Itoa(d) + "/" + strconv.Itoa(im) + "/" + strconv.Itoa(y)[2:]
+			}
 		}
 		l6 := tui.NewLabel(ctime)
 		l6.SetStyleName("red")
