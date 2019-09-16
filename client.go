@@ -53,6 +53,7 @@ func init() {
 	t.SetStyle("label.green", tui.Style{Bg: tui.ColorDefault, Fg: tui.ColorGreen})
 	t.SetStyle("label.cyan", tui.Style{Bg: tui.ColorDefault, Fg: tui.ColorCyan})
 	t.SetStyle("label.yellow", tui.Style{Bg: tui.ColorDefault, Fg: tui.ColorYellow})
+	t.SetStyle("label.blue", tui.Style{Bg: tui.ColorDefault, Fg: tui.ColorBlue})
 }
 
 func callClear() {
@@ -64,28 +65,67 @@ func callClear() {
 
 func main() {
 	callClear()
-	color.Magenta.Print("      			Discord Bot TUI - By Xnopyt\n\n")
-	color.Blue.Println("		         # #                   # #")
-	color.Blue.Println("		       # #     # # # # # # #     # #")
-	color.Blue.Println("		     # # # # # # # # # # # # # # # # #")
-	color.Blue.Println("		     # # # # # # # # # # # # # # # # #")
-	color.Blue.Println("		     # # # # # # # # # # # # # # # # #")
-	color.Blue.Println("		   # # # # # # # # # # # # # # # # # # #")
-	color.Blue.Println("		   # # # # # # # # # # # # # # # # # # #")
-	color.Blue.Println("		   # # # # #     # # # # #     # # # # #")
-	color.Blue.Println("		   # # # #         # # #         # # # #")
-	color.Blue.Println("		 # # # # #         # # #         # # # # #")
-	color.Blue.Println("		 # # # # # #     # # # # #     # # # # # #")
-	color.Blue.Println("		 # # # # # # # # # # # # # # # # # # # # #")
-	color.Blue.Println("		 # # # # # # # # # # # # # # # # # # # # #")
-	color.Blue.Println("		 # # # # #     # # # # # # #     # # # # #")
-	color.Blue.Println("		     # # # #                   # # # #")
-	color.Blue.Println("		       # # # #               # # # #")
-	fmt.Print("\n\n\n\n\n")
-	reader := bufio.NewReader(os.Stdin)
-	color.Cyan.Print("Enter Token: ")
-	text, _ := reader.ReadString('\n')
-	token := strings.TrimSuffix(text[:len(text)-1], "\r")
+	var token string
+	logol := tui.NewLabel("        # #                   # #\n      # #     # # # # # # #     # #\n    # # # # # # # # # # # # # # # # #\n    # # # # # # # # # # # # # # # # #\n    # # # # # # # # # # # # # # # # #\n  # # # # # # # # # # # # # # # # # # #\n  # # # # # # # # # # # # # # # # # # #\n  # # # # #     # # # # #     # # # # #\n  # # # #         # # #         # # # #\n# # # # #         # # #         # # # # #\n# # # # # #     # # # # #     # # # # # #\n# # # # # # # # # # # # # # # # # # # # #\n# # # # # # # # # # # # # # # # # # # # #\n# # # # #     # # # # # # #     # # # # #\n    # # # #                   # # # #\n      # # # #               # # # #\n\n")
+	logol.SetStyleName("blue")
+	titlel := tui.NewLabel("Discord Bot TUI - By Xnopyt\n")
+	titlel.SetStyleName("magenta")
+	logoBox := tui.NewHBox(
+		tui.NewSpacer(),
+		logol,
+		tui.NewSpacer(),
+	)
+	logoBox.SetSizePolicy(tui.Maximum, tui.Maximum)
+	titleBox := tui.NewHBox(
+		tui.NewSpacer(),
+		titlel,
+		tui.NewSpacer(),
+	)
+	logo := tui.NewVBox(
+		titleBox,
+		logoBox,
+		tui.NewSpacer(),
+	)
+	input := tui.NewEntry()
+	input.SetFocused(true)
+	input.SetSizePolicy(tui.Expanding, tui.Maximum)
+	input.SetEchoMode(tui.EchoModePassword)
+
+	tokenText := tui.NewLabel("Enter Token > ")
+	tokenText.SetStyleName("cyan")
+	tokenText.SetSizePolicy(tui.Minimum, tui.Minimum)
+
+	inputBox := tui.NewHBox(tokenText, input)
+	inputBox.SetBorder(true)
+	inputBox.SetSizePolicy(tui.Expanding, tui.Maximum)
+
+	menu := tui.NewVBox(
+		logo,
+		inputBox,
+		tui.NewSpacer(),
+	)
+
+	mui, err := tui.New(menu)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	input.OnSubmit(func(e *tui.Entry) {
+		token = e.Text()
+		mui.Quit()
+	})
+
+	mui.SetTheme(t)
+
+	mui.SetKeybinding("Esc", func() {
+		mui.Quit()
+		callClear()
+		os.Exit(0)
+	})
+
+	if err := mui.Run(); err != nil {
+		log.Fatal(err)
+	}
 	callClear()
 	color.Magenta.Println("Connecting to Discord....")
 	s, err := discordgo.New("Bot " + token)
