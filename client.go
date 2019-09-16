@@ -35,6 +35,11 @@ func init() {
 		cmd.Stdout = os.Stdout
 		cmd.Run()
 	}
+	clear["darwin"] = func() {
+		cmd := exec.Command("clear")
+		cmd.Stdout = os.Stdout
+		cmd.Run()
+	}
 	t = tui.NewTheme()
 	t.SetStyle("normal", tui.Style{Bg: tui.ColorBlack, Fg: tui.ColorWhite})
 	t.SetStyle("label.magenta", tui.Style{Bg: tui.ColorBlack, Fg: tui.ColorMagenta})
