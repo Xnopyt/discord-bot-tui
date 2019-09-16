@@ -493,6 +493,7 @@ func run(s *discordgo.Session) {
 	historyBox.SetBorder(true)
 
 	input := tui.NewEntry()
+	input.SetText(">")
 	input.SetFocused(true)
 	input.SetSizePolicy(tui.Expanding, tui.Maximum)
 
@@ -504,8 +505,14 @@ func run(s *discordgo.Session) {
 	chat.SetSizePolicy(tui.Expanding, tui.Expanding)
 
 	input.OnSubmit(func(e *tui.Entry) {
-		s.ChannelMessageSend(channel.ID, e.Text())
-		input.SetText("")
+		s.ChannelMessageSend(channel.ID, e.Text()[1:])
+		input.SetText(">")
+	})
+
+	input.OnChanged(func(e *tui.Entry) {
+		if e.Text() == "" {
+			input.SetText(">")
+		}
 	})
 
 	root := tui.NewHBox(sidebar, chat)
