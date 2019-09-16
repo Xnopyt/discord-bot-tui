@@ -24,6 +24,9 @@ var history *tui.Box
 var running = false
 var cchan string
 var cguild string
+var guild *discordgo.UserGuild
+var user *discordgo.User
+var channel *discordgo.Channel
 var t *tui.Theme
 
 func init() {
@@ -115,25 +118,29 @@ func recvMsg(s *discordgo.Session, m *discordgo.MessageCreate) {
 		var member *discordgo.Member
 		member = nil
 		err = nil
-		for _, z := range memberCache {
-			if z.User.ID == m.Author.ID {
-				member = z
+		if cguild != "DM" {
+			for _, z := range memberCache {
+				if z.User.ID == m.Author.ID {
+					member = z
+				}
 			}
-		}
-		if member == nil {
-			member, err = s.GuildMember(cguild, m.Author.ID)
-			if err == nil {
-				memberCache = append(memberCache, member)
+			if member == nil {
+				member, err = s.GuildMember(cguild, m.Author.ID)
+				if err == nil {
+					memberCache = append(memberCache, member)
+				}
 			}
-		}
-		if err != nil {
-			cname = m.Author.Username
-		} else {
-			if member.Nick == "" {
+			if err != nil {
 				cname = m.Author.Username
 			} else {
-				cname = member.Nick
+				if member.Nick == "" {
+					cname = m.Author.Username
+				} else {
+					cname = member.Nick
+				}
 			}
+		} else {
+			cname = m.Author.Username
 		}
 		times, err := m.Timestamp.Parse()
 		if err != nil {
@@ -181,6 +188,7 @@ func run(s *discordgo.Session) {
 	for i, v := range guilds {
 		fmt.Println(strconv.Itoa(i+1) + ": " + v.Name)
 	}
+	fmt.Println("d: DM User")
 	fmt.Println("q: Quit")
 	fmt.Print("\n\n>")
 	reader := bufio.NewReader(os.Stdin)
@@ -190,47 +198,101 @@ func run(s *discordgo.Session) {
 		callClear()
 		os.Exit(0)
 	}
-	selc, err := strconv.Atoi(text)
-	if err != nil {
-		log.Fatal("Invalid Selection")
-	}
-	if selc > len(guilds) || selc < 1 {
-		log.Fatal("Invalid Selection")
-	}
-	selc = selc - 1
-	guild := guilds[selc]
-	callClear()
-	channels, err := s.GuildChannels(guild.ID)
-	if err != nil {
-		log.Fatal(err)
-	}
-	var txtChannels []*discordgo.Channel
-	for _, v := range channels {
-		if !(v.Type > 1) {
-			txtChannels = append(txtChannels, v)
+	if text == "d" {
+		callClear()
+		color.Magenta.Println("Now Loading...")
+		var users []*discordgo.User
+		for _, v := range guilds {
+			g, err := s.Guild(v.ID)
+			if err == nil {
+				for _, x := range g.Members {
+					if !x.User.Bot {
+						z := false
+						for _, y := range users {
+							if y.ID == x.User.ID {
+								z = true
+							}
+						}
+						if z {
+							continue
+						}
+						users = append(users, x.User)
+					}
+				}
+			}
 		}
+		callClear()
+		fmt.Print("Logged in as ")
+		color.Red.Print(s.State.User.Username)
+		color.Magenta.Println("#" + s.State.User.Discriminator + "\n\n")
+		color.Cyan.Println("Select a User:")
+		for i, v := range users {
+			fmt.Println(strconv.Itoa(i+1) + ": " + v.Username + "#" + v.Discriminator)
+		}
+		fmt.Print("\n\n>")
+		reader := bufio.NewReader(os.Stdin)
+		text, _ := reader.ReadString('\n')
+		text = strings.TrimSuffix(text[:len(text)-1], "\r")
+		selc, err := strconv.Atoi(text)
+		if err != nil {
+			log.Fatal("Invalid Selection")
+		}
+		if selc > len(users) || selc < 1 {
+			log.Fatal("Invalid Selection")
+		}
+		selc = selc - 1
+		user = users[selc]
+		channel, err = s.UserChannelCreate(user.ID)
+		if err != nil {
+			log.Fatal(err)
+		}
+		cguild = "DM"
+		cchan = channel.ID
+	} else {
+		selc, err := strconv.Atoi(text)
+		if err != nil {
+			log.Fatal("Invalid Selection")
+		}
+		if selc > len(guilds) || selc < 1 {
+			log.Fatal("Invalid Selection")
+		}
+		selc = selc - 1
+		guild = guilds[selc]
+		callClear()
+		channels, err := s.GuildChannels(guild.ID)
+		if err != nil {
+			log.Fatal(err)
+		}
+		var txtChannels []*discordgo.Channel
+		for _, v := range channels {
+			if !(v.Type > 1) {
+				txtChannels = append(txtChannels, v)
+			}
+		}
+		fmt.Print("Logged in as ")
+		color.Red.Print(s.State.User.Username)
+		color.Magenta.Println("#" + s.State.User.Discriminator)
+		fmt.Print("Server: ")
+		color.Green.Print(guild.Name, "\n\n")
+		color.Cyan.Println("Select a Channel:")
+		for i, v := range txtChannels {
+			fmt.Println(strconv.Itoa(i+1) + ": " + v.Name)
+		}
+		fmt.Print("\n\n>")
+		text, _ = reader.ReadString('\n')
+		text = strings.TrimSuffix(text[:len(text)-1], "\r")
+		selc, err = strconv.Atoi(text)
+		if err != nil {
+			log.Fatal("Invalid Selection")
+		}
+		if selc > len(txtChannels) || selc < 1 {
+			log.Fatal("Invalid Selection")
+		}
+		selc = selc - 1
+		channel = txtChannels[selc]
+		cguild = guild.ID
+		cchan = channel.ID
 	}
-	fmt.Print("Logged in as ")
-	color.Red.Print(s.State.User.Username)
-	color.Magenta.Println("#" + s.State.User.Discriminator)
-	fmt.Print("Server: ")
-	color.Green.Print(guild.Name, "\n\n")
-	color.Cyan.Println("Select a Channel:")
-	for i, v := range txtChannels {
-		fmt.Println(strconv.Itoa(i+1) + ": " + v.Name)
-	}
-	fmt.Print("\n\n>")
-	text, _ = reader.ReadString('\n')
-	text = strings.TrimSuffix(text[:len(text)-1], "\r")
-	selc, err = strconv.Atoi(text)
-	if err != nil {
-		log.Fatal("Invalid Selection")
-	}
-	if selc > len(txtChannels) || selc < 1 {
-		log.Fatal("Invalid Selection")
-	}
-	selc = selc - 1
-	channel := txtChannels[selc]
 	callClear()
 	color.Magenta.Println("Now Loading...")
 	l1 := tui.NewLabel("  Discord Bot TUI  ")
@@ -239,9 +301,18 @@ func run(s *discordgo.Session) {
 	l2.SetStyleName("red")
 	l3 := tui.NewLabel(s.State.User.Username + "#" + s.State.User.Discriminator)
 	l3.SetStyleName("cyan")
-	l4 := tui.NewLabel("\nServer:\n" + guild.Name)
+	var l4 *tui.Label
+	var l5 *tui.Label
+	if cguild == "DM" {
+		l4 = tui.NewLabel("\nDirect Message\n")
+		l5 = tui.NewLabel("\nUser:\n" + " " + user.Username + "#" + user.Discriminator)
+
+	} else {
+		l4 = tui.NewLabel("\nServer:\n" + " " + guild.Name)
+		l5 = tui.NewLabel("\nChannel:\n" + " " + channel.Name)
+
+	}
 	l4.SetStyleName("green")
-	l5 := tui.NewLabel("\nChannel:\n" + channel.Name)
 	l5.SetStyleName("green")
 	sidebar := tui.NewVBox(
 		l1,
@@ -249,6 +320,7 @@ func run(s *discordgo.Session) {
 		l3,
 		l4,
 		l5,
+		tui.NewLabel("\n\n\nPress 'ESC' to exit"),
 		tui.NewSpacer(),
 	)
 	sidebar.SetBorder(true)
@@ -271,25 +343,29 @@ func run(s *discordgo.Session) {
 		var member *discordgo.Member
 		member = nil
 		err = nil
-		for _, z := range memberCache {
-			if z.User.ID == v.Author.ID {
-				member = z
+		if cguild != "DM" {
+			for _, z := range memberCache {
+				if z.User.ID == v.Author.ID {
+					member = z
+				}
 			}
-		}
-		if member == nil {
-			member, err = s.GuildMember(guild.ID, v.Author.ID)
-			if err == nil {
-				memberCache = append(memberCache, member)
+			if member == nil {
+				member, err = s.GuildMember(guild.ID, v.Author.ID)
+				if err == nil {
+					memberCache = append(memberCache, member)
+				}
 			}
-		}
-		if err != nil {
-			cname = v.Author.Username
-		} else {
-			if member.Nick == "" {
+			if err != nil {
 				cname = v.Author.Username
 			} else {
-				cname = member.Nick
+				if member.Nick == "" {
+					cname = v.Author.Username
+				} else {
+					cname = member.Nick
+				}
 			}
+		} else {
+			cname = v.Author.Username
 		}
 		times, err := v.Timestamp.Parse()
 		if err != nil {
@@ -362,8 +438,6 @@ func run(s *discordgo.Session) {
 		callClear()
 	})
 
-	cguild = guild.ID
-	cchan = channel.ID
 	running = true
 	if err := ui.Run(); err != nil {
 		log.Fatal(err)
