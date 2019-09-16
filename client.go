@@ -68,8 +68,15 @@ func main() {
 	var token string
 	logol := tui.NewLabel("        # #                   # #\n      # #     # # # # # # #     # #\n    # # # # # # # # # # # # # # # # #\n    # # # # # # # # # # # # # # # # #\n    # # # # # # # # # # # # # # # # #\n  # # # # # # # # # # # # # # # # # # #\n  # # # # # # # # # # # # # # # # # # #\n  # # # # #     # # # # #     # # # # #\n  # # # #         # # #         # # # #\n# # # # #         # # #         # # # # #\n# # # # # #     # # # # #     # # # # # #\n# # # # # # # # # # # # # # # # # # # # #\n# # # # # # # # # # # # # # # # # # # # #\n# # # # #     # # # # # # #     # # # # #\n    # # # #                   # # # #\n      # # # #               # # # #\n\n")
 	logol.SetStyleName("blue")
-	titlel := tui.NewLabel("Discord Bot TUI - By Xnopyt\n")
+	titlel := tui.NewLabel("Discord Bot TUI")
 	titlel.SetStyleName("magenta")
+	authorl := tui.NewLabel("By Xnopyt\n")
+	authorl.SetStyleName("red")
+	authorBox := tui.NewHBox(
+		tui.NewSpacer(),
+		authorl,
+		tui.NewSpacer(),
+	)
 	logoBox := tui.NewHBox(
 		tui.NewSpacer(),
 		logol,
@@ -83,6 +90,7 @@ func main() {
 	)
 	logo := tui.NewVBox(
 		titleBox,
+		authorBox,
 		logoBox,
 		tui.NewSpacer(),
 	)
