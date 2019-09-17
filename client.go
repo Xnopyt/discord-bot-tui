@@ -22,6 +22,7 @@ var memberCache []*discordgo.Member
 var clear map[string]func()
 var ready = make(chan bool)
 var ui tui.UI
+var loadUI tui.UI
 var history *tui.Box
 var running = false
 var cchan string
@@ -410,7 +411,6 @@ func run(s *discordgo.Session) {
 		cchan = channel.ID
 	}
 	callClear()
-	color.Magenta.Println("Now Loading...")
 	l1 := tui.NewLabel("Discord Bot TUI")
 	l1.SetStyleName("magenta")
 	l2 := tui.NewLabel("By Xnopyt\n\n")
@@ -454,17 +454,55 @@ func run(s *discordgo.Session) {
 	history = tui.NewVBox()
 
 	msgs, _ := s.ChannelMessages(channel.ID, 100, "", "", "")
+
+	loadl := tui.NewLabel("Processing Channel History\n\n\n")
+	loadl.SetStyleName("magenta")
+	loadText := tui.NewHBox(
+		tui.NewSpacer(),
+		loadl,
+		tui.NewSpacer(),
+	)
+	percent := tui.NewLabel("0%")
+	percent.SetStyleName("cyan")
+	percentText := tui.NewHBox(
+		tui.NewSpacer(),
+		percent,
+		tui.NewSpacer(),
+	)
+	progress := tui.NewProgress(len(msgs))
+	progress.SetCurrent(0)
+	loadBox := tui.NewVBox(
+		loadText,
+		percentText,
+		progress,
+		tui.NewSpacer(),
+	)
+
+	loadUI, err = tui.New(loadBox)
+	if err != nil {
+		log.Fatal(err)
+	}
+	loadUI.SetTheme(t)
+	go func() {
+		if err := loadUI.Run(); err != nil {
+			log.Fatal(err)
+		}
+	}()
+
 	for i, j := 0, len(msgs)-1; i < j; i, j = i+1, j-1 {
 		msgs[i], msgs[j] = msgs[j], msgs[i]
 	}
-	color.Red.Printf("Processing Channel history: 0%%")
 	memberCache = []*discordgo.Member{}
 	x := 1
 	for _, v := range msgs {
-		color.Red.Printf("\rProcessing Channel history: " + strconv.Itoa(int(math.Floor(float64(x)/float64(len(msgs))*float64(100)))) + "%%")
+		percent.SetText(strconv.Itoa(int(math.Floor(float64(x)/float64(len(msgs))*float64(100)))) + "%")
+		progress.SetCurrent(int(math.Floor(float64(x) / float64(len(msgs)) * float64(100))))
+		loadUI.Repaint()
 		x++
 		appendToHistory(s, &discordgo.MessageCreate{Message: v})
 	}
+	time.Sleep(time.Second)
+	loadUI.Quit()
 
 	historyScroll := tui.NewScrollArea(history)
 	historyScroll.SetAutoscrollToBottom(true)
