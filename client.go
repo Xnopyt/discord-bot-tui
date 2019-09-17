@@ -489,6 +489,7 @@ func run(s *discordgo.Session) {
 	progress := tui.NewProgress(len(msgs))
 	progress.SetCurrent(0)
 	loadBox := tui.NewVBox(
+		tui.NewSpacer(),
 		loadText,
 		percentText,
 		progress,
