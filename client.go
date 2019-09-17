@@ -200,6 +200,7 @@ func appendToHistory(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if err != nil {
 		ctime = "00:00"
 	} else {
+		times = times.Local()
 		hr, mi, _ := times.Clock()
 		var min string
 		if mi < 10 {
