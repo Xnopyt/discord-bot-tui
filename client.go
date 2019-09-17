@@ -496,7 +496,7 @@ func run(s *discordgo.Session) {
 	x := 1
 	for _, v := range msgs {
 		percent.SetText(strconv.Itoa(int(math.Floor(float64(x)/float64(len(msgs))*float64(100)))) + "%")
-		progress.SetCurrent(int(math.Floor(float64(x) / float64(len(msgs)) * float64(100))))
+		progress.SetCurrent(x)
 		loadUI.Repaint()
 		x++
 		appendToHistory(s, &discordgo.MessageCreate{Message: v})
