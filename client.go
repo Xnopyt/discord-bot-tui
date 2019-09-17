@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"flag"
 	"fmt"
 	"log"
@@ -289,6 +290,19 @@ func recvMsg(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 }
 
+func insertInto(s string, interval int, sep rune) string {
+	var buffer bytes.Buffer
+	before := interval - 1
+	last := len(s) - 1
+	for i, char := range s {
+		buffer.WriteRune(char)
+		if i%interval == before && i != last {
+			buffer.WriteRune(sep)
+		}
+	}
+	return buffer.String()
+}
+
 func run(s *discordgo.Session) {
 	running = false
 	cguild = ""
@@ -434,8 +448,17 @@ func run(s *discordgo.Session) {
 		l5 = tui.NewLabel("\nUser:\n" + " " + user.Username + "#" + user.Discriminator)
 
 	} else {
-		l4 = tui.NewLabel("\nServer:\n" + " " + guild.Name)
-		l5 = tui.NewLabel("\nChannel:\n" + " " + channel.Name)
+		if len(guild.Name) > 19 {
+			l4 = tui.NewLabel("\nServer:\n" + insertInto(guild.Name, 19, '\n'))
+		} else {
+			l4 = tui.NewLabel("\nServer:\n" + guild.Name)
+
+		}
+		if len(channel.Name) > 19 {
+			l5 = tui.NewLabel("\nChannel:\n" + insertInto(channel.Name, 19, '\n'))
+		} else {
+			l5 = tui.NewLabel("\nChannel:\n" + channel.Name)
+		}
 
 	}
 	l4.SetStyleName("green")
