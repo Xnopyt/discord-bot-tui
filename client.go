@@ -10,7 +10,6 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/gookit/color"
@@ -163,110 +162,116 @@ func main() {
 	}
 }
 
+func appendToHistory(s *discordgo.Session, m *discordgo.MessageCreate) {
+	var cname string
+	var ctime string
+	var err error
+	var member *discordgo.Member
+	member = nil
+	err = nil
+	if cguild != "DM" {
+		for _, z := range memberCache {
+			if z.User.ID == m.Author.ID {
+				member = z
+			}
+		}
+		if member == nil {
+			member, err = s.GuildMember(cguild, m.Author.ID)
+			if err == nil {
+				memberCache = append(memberCache, member)
+			}
+		}
+		if err != nil {
+			cname = m.Author.Username
+		} else {
+			if member.Nick == "" {
+				cname = m.Author.Username
+			} else {
+				cname = member.Nick
+			}
+		}
+	} else {
+		cname = m.Author.Username
+	}
+	times, err := m.Timestamp.Parse()
+	if err != nil {
+		ctime = "00:00"
+	} else {
+		hr, mi, _ := times.Clock()
+		var min string
+		if mi < 10 {
+			min = strconv.Itoa(mi)
+			min = "0" + min
+		} else {
+			min = strconv.Itoa(mi)
+		}
+		ctime = strconv.Itoa(hr) + ":" + min
+	}
+	for _, z := range m.Attachments {
+		if m.Content == "" {
+			m.Content = z.URL
+		} else {
+			m.Content += "\n" + z.URL
+		}
+	}
+	for _, z := range m.Embeds {
+		if m.Content != "" {
+			m.Content += "\n" + "Embed:"
+		}
+		if z.Title != "" {
+			m.Content += "\n" + z.Title
+		}
+		if z.Description != "" {
+			m.Content += "\n" + z.Description
+		}
+		if z.URL != "" {
+			m.Content += "\n" + z.URL
+		}
+		if z.Description != "" {
+			m.Content += "\n" + z.Description
+		}
+		if z.Image != nil {
+			m.Content += "\n" + z.Image.URL
+		}
+		if z.Thumbnail != nil {
+			m.Content += "\n" + z.Thumbnail.URL
+		}
+		if z.Video != nil {
+			m.Content += "\n" + z.Video.URL
+		}
+		for _, f := range z.Fields {
+			m.Content += "\n" + f.Name + ": " + f.Value
+		}
+		if z.Provider != nil {
+			m.Content += "\n" + "Provider: " + z.Provider.Name + " (" + z.Provider.URL + ")"
+		}
+		if z.Footer != nil {
+			m.Content += "\n" + z.Footer.Text + " " + z.Footer.IconURL
+		}
+	}
+	l1 := tui.NewLabel(ctime)
+	l1.SetStyleName("red")
+	l2 := tui.NewLabel(fmt.Sprintf("<%s>", cname))
+	l2.SetStyleName("green")
+	l3 := tui.NewLabel(m.Content)
+	l3.SetStyleName("cyan")
+	history.Append(tui.NewHBox(
+		l1,
+		tui.NewPadder(1, 0, l2),
+		l3,
+		tui.NewSpacer(),
+	))
+	if running {
+		ui.Repaint()
+	}
+}
+
 func recvMsg(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if !running {
 		return
 	}
 	if m.ChannelID == cchan {
-		var cname string
-		var ctime string
-		var err error
-		var member *discordgo.Member
-		member = nil
-		err = nil
-		if cguild != "DM" {
-			for _, z := range memberCache {
-				if z.User.ID == m.Author.ID {
-					member = z
-				}
-			}
-			if member == nil {
-				member, err = s.GuildMember(cguild, m.Author.ID)
-				if err == nil {
-					memberCache = append(memberCache, member)
-				}
-			}
-			if err != nil {
-				cname = m.Author.Username
-			} else {
-				if member.Nick == "" {
-					cname = m.Author.Username
-				} else {
-					cname = member.Nick
-				}
-			}
-		} else {
-			cname = m.Author.Username
-		}
-		times, err := m.Timestamp.Parse()
-		if err != nil {
-			ctime = "00:00"
-		} else {
-			hr, mi, _ := times.Clock()
-			var min string
-			if mi < 10 {
-				min = strconv.Itoa(mi)
-				min = "0" + min
-			} else {
-				min = strconv.Itoa(mi)
-			}
-			ctime = strconv.Itoa(hr) + ":" + min
-		}
-		for _, z := range m.Attachments {
-			if m.Content == "" {
-				m.Content = z.URL
-			} else {
-				m.Content += "\n" + z.URL
-			}
-		}
-		for _, z := range m.Embeds {
-			if m.Content != "" {
-				m.Content += "\n" + "Embed:"
-			}
-			if z.Title != "" {
-				m.Content += "\n" + z.Title
-			}
-			if z.Description != "" {
-				m.Content += "\n" + z.Description
-			}
-			if z.URL != "" {
-				m.Content += "\n" + z.URL
-			}
-			if z.Description != "" {
-				m.Content += "\n" + z.Description
-			}
-			if z.Image != nil {
-				m.Content += "\n" + z.Image.URL
-			}
-			if z.Thumbnail != nil {
-				m.Content += "\n" + z.Thumbnail.URL
-			}
-			if z.Video != nil {
-				m.Content += "\n" + z.Video.URL
-			}
-			for _, f := range z.Fields {
-				m.Content += "\n" + f.Name + ": " + f.Value
-			}
-			if z.Provider != nil {
-				m.Content += "\n" + "Provider: " + z.Provider.Name + " (" + z.Provider.URL + ")"
-			}
-			if z.Footer != nil {
-				m.Content += "\n" + z.Footer.Text + " " + z.Footer.IconURL
-			}
-		}
-		l1 := tui.NewLabel(ctime)
-		l1.SetStyleName("red")
-		l2 := tui.NewLabel(fmt.Sprintf("<%s>", cname))
-		l2.SetStyleName("green")
-		l3 := tui.NewLabel(m.Content)
-		l3.SetStyleName("cyan")
-		history.Append(tui.NewHBox(
-			l1,
-			tui.NewPadder(1, 0, l2),
-			l3,
-			tui.NewSpacer(),
-		))
-		ui.Repaint()
+		appendToHistory(s, m)
 	}
 }
 
@@ -445,111 +450,7 @@ func run(s *discordgo.Session) {
 	for _, v := range msgs {
 		color.Red.Printf("\rProcessing Channel history: %d/"+strconv.Itoa(len(msgs)), x)
 		x++
-		var cname string
-		var ctime string
-		var err error
-		var member *discordgo.Member
-		member = nil
-		err = nil
-		if cguild != "DM" {
-			for _, z := range memberCache {
-				if z.User.ID == v.Author.ID {
-					member = z
-				}
-			}
-			if member == nil {
-				member, err = s.GuildMember(guild.ID, v.Author.ID)
-				if err == nil {
-					memberCache = append(memberCache, member)
-				}
-			}
-			if err != nil {
-				cname = v.Author.Username
-			} else {
-				if member.Nick == "" {
-					cname = v.Author.Username
-				} else {
-					cname = member.Nick
-				}
-			}
-		} else {
-			cname = v.Author.Username
-		}
-		times, err := v.Timestamp.Parse()
-		if err != nil {
-			ctime = "00:00"
-		} else {
-			hr, mi, _ := times.Clock()
-			var min string
-			if mi < 10 {
-				min = strconv.Itoa(mi)
-				min = "0" + min
-			} else {
-				min = strconv.Itoa(mi)
-			}
-			ctime = strconv.Itoa(hr) + ":" + min
-			y, m, d := times.Date()
-			cy, cm, cd := time.Now().Date()
-			im := int(m)
-			icm := int(cm)
-			if y != cy || im != icm || d != cd {
-				ctime = strconv.Itoa(d) + "/" + strconv.Itoa(im) + "/" + strconv.Itoa(y)[2:]
-			}
-		}
-		for _, z := range v.Attachments {
-			if v.Content == "" {
-				v.Content = z.URL
-			} else {
-				v.Content += "\n" + z.URL
-			}
-		}
-		for _, z := range v.Embeds {
-			if v.Content != "" {
-				v.Content += "\n" + "Embed:"
-			}
-			if z.Title != "" {
-				v.Content += "\n" + z.Title
-			}
-			if z.Description != "" {
-				v.Content += "\n" + z.Description
-			}
-			if z.URL != "" {
-				v.Content += "\n" + z.URL
-			}
-			if z.Description != "" {
-				v.Content += "\n" + z.Description
-			}
-			if z.Image != nil {
-				v.Content += "\n" + z.Image.URL
-			}
-			if z.Thumbnail != nil {
-				v.Content += "\n" + z.Thumbnail.URL
-			}
-			if z.Video != nil {
-				v.Content += "\n" + z.Video.URL
-			}
-			for _, f := range z.Fields {
-				v.Content += "\n" + f.Name + ": " + f.Value
-			}
-			if z.Provider != nil {
-				v.Content += "\n" + "Provider: " + z.Provider.Name + " (" + z.Provider.URL + ")"
-			}
-			if z.Footer != nil {
-				v.Content += "\n" + z.Footer.Text + " " + z.Footer.IconURL
-			}
-		}
-		l6 := tui.NewLabel(ctime)
-		l6.SetStyleName("red")
-		l7 := tui.NewLabel(fmt.Sprintf("<%s>", cname))
-		l7.SetStyleName("green")
-		l8 := tui.NewLabel(v.Content)
-		l8.SetStyleName("cyan")
-		history.Append(tui.NewHBox(
-			l6,
-			tui.NewPadder(1, 0, l7),
-			l8,
-			tui.NewSpacer(),
-		))
+		appendToHistory(s, &discordgo.MessageCreate{v})
 	}
 
 	historyScroll := tui.NewScrollArea(history)
