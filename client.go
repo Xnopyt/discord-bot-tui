@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -65,6 +66,9 @@ func callClear() {
 
 func main() {
 	callClear()
+	tokenFlag := flag.String("token", "", "Discord Bot Token")
+	flag.Parse()
+	tokenFlags := *tokenFlag
 	var token string
 	logol := tui.NewLabel("        # #                   # #\n      # #     # # # # # # #     # #\n    # # # # # # # # # # # # # # # # #\n    # # # # # # # # # # # # # # # # #\n    # # # # # # # # # # # # # # # # #\n  # # # # # # # # # # # # # # # # # # #\n  # # # # # # # # # # # # # # # # # # #\n  # # # # #     # # # # #     # # # # #\n  # # # #         # # #         # # # #\n# # # # #         # # #         # # # # #\n# # # # # #     # # # # #     # # # # # #\n# # # # # # # # # # # # # # # # # # # # #\n# # # # # # # # # # # # # # # # # # # # #\n# # # # #     # # # # # # #     # # # # #\n    # # # #                   # # # #\n      # # # #               # # # #\n\n")
 	logol.SetStyleName("blue")
@@ -131,8 +135,12 @@ func main() {
 		os.Exit(0)
 	})
 
-	if err := mui.Run(); err != nil {
-		log.Fatal(err)
+	if tokenFlags == "" {
+		if err := mui.Run(); err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		token = tokenFlags
 	}
 	callClear()
 	color.Magenta.Println("Connecting to Discord....")
