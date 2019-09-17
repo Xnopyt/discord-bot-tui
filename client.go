@@ -462,7 +462,7 @@ func run(s *discordgo.Session) {
 	for _, v := range msgs {
 		color.Red.Printf("\rProcessing Channel history: %d/"+strconv.Itoa(len(msgs)), x)
 		x++
-		appendToHistory(s, &discordgo.MessageCreate{v})
+		appendToHistory(s, &discordgo.MessageCreate{Message: v})
 	}
 
 	historyScroll := tui.NewScrollArea(history)
