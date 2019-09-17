@@ -79,22 +79,9 @@ func main() {
 	titlel.SetStyleName("magenta")
 	authorl := tui.NewLabel("By Xnopyt\n")
 	authorl.SetStyleName("red")
-	authorBox := tui.NewHBox(
-		tui.NewSpacer(),
-		authorl,
-		tui.NewSpacer(),
-	)
-	logoBox := tui.NewHBox(
-		tui.NewSpacer(),
-		logol,
-		tui.NewSpacer(),
-	)
-	logoBox.SetSizePolicy(tui.Maximum, tui.Maximum)
-	titleBox := tui.NewHBox(
-		tui.NewSpacer(),
-		titlel,
-		tui.NewSpacer(),
-	)
+	authorBox := tui.NewPadder(36, 0, authorl)
+	logoBox := tui.NewPadder(20, 0, logol)
+	titleBox := tui.NewPadder(33, 0, titlel)
 	logo := tui.NewVBox(
 		titleBox,
 		authorBox,
@@ -114,9 +101,16 @@ func main() {
 	inputBox.SetBorder(true)
 	inputBox.SetSizePolicy(tui.Expanding, tui.Maximum)
 
-	menu := tui.NewVBox(
+	menuA := tui.NewVBox(
+		tui.NewSpacer(),
 		logo,
 		inputBox,
+		tui.NewSpacer(),
+	)
+
+	menu := tui.NewHBox(
+		tui.NewSpacer(),
+		menuA,
 		tui.NewSpacer(),
 	)
 
