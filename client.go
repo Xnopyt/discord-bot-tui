@@ -10,6 +10,7 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/gookit/color"
@@ -206,6 +207,13 @@ func appendToHistory(s *discordgo.Session, m *discordgo.MessageCreate) {
 			min = strconv.Itoa(mi)
 		}
 		ctime = strconv.Itoa(hr) + ":" + min
+		y, m, d := times.Date()
+		cy, cm, cd := time.Now().Date()
+		im := int(m)
+		icm := int(cm)
+		if y != cy || im != icm || d != cd {
+			ctime = strconv.Itoa(d) + "/" + strconv.Itoa(im) + "/" + strconv.Itoa(y)[2:]
+		}
 	}
 	for _, z := range m.Attachments {
 		if m.Content == "" {
