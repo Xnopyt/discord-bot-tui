@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"math"
 	"os"
 	"os/exec"
 	"runtime"
@@ -456,11 +457,11 @@ func run(s *discordgo.Session) {
 	for i, j := 0, len(msgs)-1; i < j; i, j = i+1, j-1 {
 		msgs[i], msgs[j] = msgs[j], msgs[i]
 	}
-	color.Red.Printf("Processing Channel history: 0/" + strconv.Itoa(len(msgs)))
+	color.Red.Printf("Processing Channel history: 0%%")
 	memberCache = []*discordgo.Member{}
 	x := 1
 	for _, v := range msgs {
-		color.Red.Printf("\rProcessing Channel history: %d/"+strconv.Itoa(len(msgs)), x)
+		color.Red.Printf("\rProcessing Channel history: " + strconv.Itoa(int(math.Floor(float64(x)/float64(len(msgs))*float64(100)))) + "%%")
 		x++
 		appendToHistory(s, &discordgo.MessageCreate{Message: v})
 	}
