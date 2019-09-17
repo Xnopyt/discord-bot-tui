@@ -32,6 +32,7 @@ var guild *discordgo.UserGuild
 var user *discordgo.User
 var channel *discordgo.Channel
 var t *tui.Theme
+var typing bool
 
 func init() {
 	clear = make(map[string]func())
@@ -548,6 +549,16 @@ func run(s *discordgo.Session) {
 	input.OnChanged(func(e *tui.Entry) {
 		if e.Text() == "" {
 			input.SetText(">")
+		} else if e.Text() != ">" {
+			go func(id string) {
+				if typing {
+					return
+				}
+				typing = true
+				s.ChannelTyping(id)
+				time.Sleep(3 * time.Second)
+				typing = false
+			}(channel.ID)
 		}
 	})
 
