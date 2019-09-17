@@ -169,7 +169,11 @@ func appendToHistory(s *discordgo.Session, m *discordgo.MessageCreate) {
 	var err error
 	var member *discordgo.Member
 	member = nil
-	err = nil
+	m.Content, err = m.ContentWithMoreMentionsReplaced(s)
+	if err != nil {
+		m.Content = m.ContentWithMentionsReplaced()
+		err = nil
+	}
 	if cguild != "DM" {
 		for _, z := range memberCache {
 			if z.User.ID == m.Author.ID {
