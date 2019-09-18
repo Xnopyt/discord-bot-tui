@@ -405,9 +405,25 @@ func run(s *discordgo.Session) {
 		for i, v := range txtChannels {
 			fmt.Println(strconv.Itoa(i+1) + ": " + v.Name)
 		}
-		fmt.Print("\n\n>")
+		fmt.Print("\n\nc: Change Nickname\n\n>")
 		text, _ = reader.ReadString('\n')
 		text = strings.TrimSuffix(text[:len(text)-1], "\r")
+		if text == "c" {
+			callClear()
+			fmt.Print("Server: ")
+			color.Green.Println(guild.Name)
+			member, err := s.GuildMember(guild.ID, s.State.User.ID)
+			if err != nil {
+				log.Fatal(err)
+			}
+			fmt.Print("Current nickname: ")
+			color.Cyan.Print(member.Nick + "\n\n")
+			color.Blue.Print("Enter New nickname >")
+			text, _ = reader.ReadString('\n')
+			text = strings.TrimSuffix(text[:len(text)-1], "\r")
+			s.GuildMemberNickname(guild.ID, "@me", text)
+			return
+		}
 		selc, err = strconv.Atoi(text)
 		if err != nil {
 			log.Fatal("Invalid Selection")
