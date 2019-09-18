@@ -14,6 +14,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/atotto/clipboard"
 	"github.com/bwmarrin/discordgo"
 	"github.com/gookit/color"
 	"github.com/marcusolsson/tui-go"
@@ -118,6 +119,19 @@ func main() {
 	mui, err := tui.New(menu)
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	if runtime.GOOS == "windows" {
+		paste := tui.NewLabel("Press TAB to paste")
+		paste.SetStyleName("cyan")
+		mui.SetKeybinding("TAB", func() {
+			clip, err := clipboard.ReadAll()
+			if err != nil {
+				return
+			}
+			input.SetText(clip)
+		})
+		inputBox.Append(paste)
 	}
 
 	input.OnSubmit(func(e *tui.Entry) {
