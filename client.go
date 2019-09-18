@@ -122,8 +122,7 @@ func main() {
 	}
 
 	if runtime.GOOS == "windows" {
-		paste := tui.NewLabel("Press TAB to paste")
-		paste.SetStyleName("cyan")
+		tokenText.SetText("		  Enter Token > \nPress TAB to paste")
 		mui.SetKeybinding("TAB", func() {
 			clip, err := clipboard.ReadAll()
 			if err != nil {
@@ -131,7 +130,6 @@ func main() {
 			}
 			input.SetText(clip)
 		})
-		inputBox.Append(paste)
 	}
 
 	input.OnSubmit(func(e *tui.Entry) {
