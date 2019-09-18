@@ -410,6 +410,9 @@ func run(s *discordgo.Session) {
 		text = strings.TrimSuffix(text[:len(text)-1], "\r")
 		if text == "c" {
 			callClear()
+			fmt.Print("Logged in as ")
+			color.Red.Print(s.State.User.Username)
+			color.Magenta.Print("#" + s.State.User.Discriminator + "\n\n")
 			fmt.Print("Server: ")
 			color.Green.Println(guild.Name)
 			member, err := s.GuildMember(guild.ID, s.State.User.ID)
@@ -418,7 +421,7 @@ func run(s *discordgo.Session) {
 			}
 			fmt.Print("Current nickname: ")
 			color.Cyan.Print(member.Nick + "\n\n")
-			color.Blue.Print("Enter New nickname >")
+			color.Magenta.Print("Enter New nickname:\n >")
 			text, _ = reader.ReadString('\n')
 			text = strings.TrimSuffix(text[:len(text)-1], "\r")
 			s.GuildMemberNickname(guild.ID, "@me", text)
@@ -451,13 +454,22 @@ func run(s *discordgo.Session) {
 		l2,
 		tui.NewSpacer(),
 	)
-	l3 := tui.NewLabel(s.State.User.Username + "#" + s.State.User.Discriminator)
+	var l3 *tui.Label
+	if len(s.State.User.Username) > 14 {
+		l3 = tui.NewLabel(insertInto(s.State.User.Username+"#"+s.State.User.Discriminator, 19, '\n'))
+	} else {
+		l3 = tui.NewLabel(s.State.User.Username + "#" + s.State.User.Discriminator)
+	}
 	l3.SetStyleName("cyan")
 	var l4 *tui.Label
 	var l5 *tui.Label
 	if cguild == "DM" {
 		l4 = tui.NewLabel("\nDirect Message\n")
-		l5 = tui.NewLabel("\nUser:\n" + " " + user.Username + "#" + user.Discriminator)
+		if len(user.Username) > 14 {
+			l5 = tui.NewLabel("\nUser:\n" + " " + insertInto(user.Username+"#"+user.Discriminator, 19, '\n'))
+		} else {
+			l5 = tui.NewLabel("\nUser:\n" + " " + user.Username + "#" + user.Discriminator)
+		}
 
 	} else {
 		if len(guild.Name) > 19 {
