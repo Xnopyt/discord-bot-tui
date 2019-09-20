@@ -1,5 +1,5 @@
 # Discord Bot TUI
-[![CircleCI](https://circleci.com/gh/Xnopyt/discord-bot-tui.svg?style=svg)](https://circleci.com/gh/Xnopyt/discord-bot-tui)
+Current Build Status: [![CircleCI](https://circleci.com/gh/Xnopyt/discord-bot-tui.svg?style=svg)](https://circleci.com/gh/Xnopyt/discord-bot-tui)
 <br />
 A text-based user interface for discord bots, written in go using https://github.com/marcusolsson/tui-go and https://github.com/bwmarrin/discordgo
 <br /><br />
