@@ -157,11 +157,17 @@ func processChannelHistory(s *discordgo.Session) *tui.Box {
 	)
 	progress := tui.NewProgress(len(msgs))
 	progress.SetCurrent(0)
+	progressPad := tui.NewPadder(2, 0, progress)
+	progressBox := tui.NewHBox(
+		tui.NewSpacer(),
+		progressPad,
+		tui.NewSpacer(),
+	)
 	loadBox := tui.NewVBox(
 		tui.NewSpacer(),
 		loadText,
 		percentText,
-		progress,
+		progressBox,
 		tui.NewSpacer(),
 	)
 
