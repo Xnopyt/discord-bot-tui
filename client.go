@@ -35,6 +35,26 @@ var channel *discordgo.Channel
 var t *tui.Theme
 var typing bool
 
+const logo = `
+        # #                   # #
+      # #     # # # # # # #     # #
+    # # # # # # # # # # # # # # # # #
+    # # # # # # # # # # # # # # # # #
+    # # # # # # # # # # # # # # # # #
+  # # # # # # # # # # # # # # # # # # #
+  # # # # # # # # # # # # # # # # # # #
+  # # # # #     # # # # #     # # # # #
+  # # # #         # # #         # # # #
+# # # # #         # # #         # # # # #
+# # # # # #     # # # # #     # # # # # #
+# # # # # # # # # # # # # # # # # # # # #
+# # # # # # # # # # # # # # # # # # # # #
+# # # # #     # # # # # # #     # # # # #
+    # # # #                   # # # #
+      # # # #               # # # #
+
+`
+
 func init() {
 	clear = make(map[string]func())
 	clear["linux"] = func() {
@@ -75,19 +95,19 @@ func main() {
 	flag.Parse()
 	tokenFlags := *tokenFlag
 	var token string
-	logol := tui.NewLabel("        # #                   # #\n      # #     # # # # # # #     # #\n    # # # # # # # # # # # # # # # # #\n    # # # # # # # # # # # # # # # # #\n    # # # # # # # # # # # # # # # # #\n  # # # # # # # # # # # # # # # # # # #\n  # # # # # # # # # # # # # # # # # # #\n  # # # # #     # # # # #     # # # # #\n  # # # #         # # #         # # # #\n# # # # #         # # #         # # # # #\n# # # # # #     # # # # #     # # # # # #\n# # # # # # # # # # # # # # # # # # # # #\n# # # # # # # # # # # # # # # # # # # # #\n# # # # #     # # # # # # #     # # # # #\n    # # # #                   # # # #\n      # # # #               # # # #\n\n")
+	logol := tui.NewLabel(logo)
 	logol.SetStyleName("blue")
 	titlel := tui.NewLabel("Discord Bot TUI")
 	titlel.SetStyleName("magenta")
-	authorl := tui.NewLabel("By Xnopyt\n")
+	authorl := tui.NewLabel("By Xnopyt")
 	authorl.SetStyleName("red")
 	authorBox := tui.NewPadder(36, 0, authorl)
-	logoBox := tui.NewPadder(20, 0, logol)
+	logopadder := tui.NewPadder(20, 0, logol)
 	titleBox := tui.NewPadder(33, 0, titlel)
-	logo := tui.NewVBox(
+	logoBox := tui.NewVBox(
 		titleBox,
 		authorBox,
-		logoBox,
+		logopadder,
 		tui.NewSpacer(),
 	)
 	input := tui.NewEntry()
@@ -105,7 +125,7 @@ func main() {
 
 	menuA := tui.NewVBox(
 		tui.NewSpacer(),
-		logo,
+		logoBox,
 		inputBox,
 		tui.NewSpacer(),
 	)
