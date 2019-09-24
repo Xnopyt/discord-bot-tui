@@ -136,7 +136,7 @@ func recvMsg(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 }
 
-func processChannelHistory(s *discordgo.Session) *tui.Box {
+func processChannelHistory(s *discordgo.Session) {
 	history = tui.NewVBox()
 
 	msgs, _ := s.ChannelMessages(channel.ID, 100, "", "", "")
@@ -171,7 +171,8 @@ func processChannelHistory(s *discordgo.Session) *tui.Box {
 		tui.NewSpacer(),
 	)
 
-	loadUI, err := tui.New(loadBox)
+	var err error
+	loadUI, err = tui.New(loadBox)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -196,7 +197,6 @@ func processChannelHistory(s *discordgo.Session) *tui.Box {
 	}
 	time.Sleep(time.Second)
 	loadUI.Quit()
-	return history
 }
 
 func chatHandler(s *discordgo.Session) {
@@ -302,7 +302,9 @@ func chatHandler(s *discordgo.Session) {
 
 	root := tui.NewHBox(sidebar, chat)
 
-	ui, err := tui.New(root)
+	var err error
+
+	ui, err = tui.New(root)
 	if err != nil {
 		log.Fatal(err)
 	}
