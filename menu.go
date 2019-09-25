@@ -88,9 +88,9 @@ func dmMenu(s *discordgo.Session, guilds []*discordgo.UserGuild) (string, []*dis
 	color.Magenta.Println("Now Loading...")
 	var users []*discordgo.User
 	for _, v := range guilds {
-		g, err := s.Guild(v.ID)
+		m, err := s.GuildMembers(v.ID, "", 1000)
 		if err == nil {
-			for _, x := range g.Members {
+			for _, x := range m {
 				if !x.User.Bot {
 					z := false
 					for _, y := range users {
