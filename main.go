@@ -28,6 +28,9 @@ func run(s *discordgo.Session) {
 	}
 	if text == "d" {
 		text, users := dmMenu(s, guilds)
+		if text == "b" {
+			return
+		}
 		if text == "q" {
 			callClear()
 			s.Close()
@@ -59,6 +62,9 @@ func run(s *discordgo.Session) {
 		selc = selc - 1
 		guild = guilds[selc]
 		text, txtChannels := channelMenu(s)
+		if text == "b" {
+			return
+		}
 		if text == "q" {
 			callClear()
 			s.Close()
