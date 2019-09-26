@@ -129,7 +129,6 @@ func loginMenu() *discordgo.Session {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer s.Close()
 	<-ready
 	return s
 }

@@ -10,6 +10,7 @@ import (
 
 func main() {
 	s := loginMenu()
+	defer s.Close()
 	for {
 		run(s)
 	}
@@ -22,10 +23,16 @@ func run(s *discordgo.Session) {
 	text, guilds := serverMenu(s)
 	if text == "q" {
 		callClear()
+		s.Close()
 		os.Exit(0)
 	}
 	if text == "d" {
 		text, users := dmMenu(s, guilds)
+		if text == "q" {
+			callClear()
+			s.Close()
+			os.Exit(0)
+		}
 		selc, err := strconv.Atoi(text)
 		if err != nil {
 			log.Fatal("Invalid Selection")
@@ -52,6 +59,11 @@ func run(s *discordgo.Session) {
 		selc = selc - 1
 		guild = guilds[selc]
 		text, txtChannels := channelMenu(s)
+		if text == "q" {
+			callClear()
+			s.Close()
+			os.Exit(0)
+		}
 		if text == "c" {
 			nicknameMenu(s)
 			return

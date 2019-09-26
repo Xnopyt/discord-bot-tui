@@ -55,7 +55,9 @@ func channelMenu(s *discordgo.Session) (string, []*discordgo.Channel) {
 	for i, v := range txtChannels {
 		fmt.Println(strconv.Itoa(i+1) + ": " + v.Name)
 	}
-	fmt.Print("\n\nc: Change Nickname\n\n>")
+	fmt.Println("\n\nc: Change Nickname")
+	fmt.Print("q: Quit")
+	fmt.Print("\n\n>")
 	reader := bufio.NewReader(os.Stdin)
 	text, _ := reader.ReadString('\n')
 	text = strings.TrimSuffix(text[:len(text)-1], "\r")
@@ -114,6 +116,7 @@ func dmMenu(s *discordgo.Session, guilds []*discordgo.UserGuild) (string, []*dis
 	for i, v := range users {
 		fmt.Println(strconv.Itoa(i+1) + ": " + v.Username + "#" + v.Discriminator)
 	}
+	fmt.Println("\nq: Quit")
 	fmt.Print("\n\n>")
 	reader := bufio.NewReader(os.Stdin)
 	text, _ := reader.ReadString('\n')
