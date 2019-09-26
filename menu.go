@@ -26,6 +26,7 @@ func serverMenu(s *discordgo.Session) (string, []*discordgo.UserGuild) {
 		fmt.Println(strconv.Itoa(i+1) + ": " + v.Name)
 	}
 	fmt.Println("\nd: DM User")
+	fmt.Println("l: Logout")
 	fmt.Println("q: Quit")
 	fmt.Print("\n\n>")
 	reader := bufio.NewReader(os.Stdin)

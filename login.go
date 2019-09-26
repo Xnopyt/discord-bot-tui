@@ -32,11 +32,14 @@ const logo = `
 
 `
 
-func loginMenu() *discordgo.Session {
+func loginMenu(i int) *discordgo.Session {
 	callClear()
-	tokenFlag := flag.String("token", "", "Discord Bot Token")
-	flag.Parse()
-	tokenFlags := *tokenFlag
+	var tokenFlags string
+	if i != 1 {
+		tokenFlag := flag.String("token", "", "Discord Bot Token")
+		flag.Parse()
+		tokenFlags = *tokenFlag
+	}
 	var token string
 	logol := tui.NewLabel(logo)
 	logol.SetStyleName("blue")

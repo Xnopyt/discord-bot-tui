@@ -9,18 +9,28 @@ import (
 )
 
 func main() {
-	s := loginMenu()
+	s := loginMenu(0)
 	defer s.Close()
+	var i int
 	for {
-		run(s)
+		i = run(s)
+		if i == 1 {
+			s.Close()
+			s = nil
+			s = loginMenu(1)
+		}
 	}
 }
 
-func run(s *discordgo.Session) {
+func run(s *discordgo.Session) int {
 	running = false
 	cguild = ""
 	cchan = ""
 	text, guilds := serverMenu(s)
+	if text == "l" {
+		callClear()
+		return 1
+	}
 	if text == "q" {
 		callClear()
 		s.Close()
@@ -29,7 +39,7 @@ func run(s *discordgo.Session) {
 	if text == "d" {
 		text, users := dmMenu(s, guilds)
 		if text == "b" {
-			return
+			return 0
 		}
 		if text == "q" {
 			callClear()
@@ -63,7 +73,7 @@ func run(s *discordgo.Session) {
 		guild = guilds[selc]
 		text, txtChannels := channelMenu(s)
 		if text == "b" {
-			return
+			return 0
 		}
 		if text == "q" {
 			callClear()
@@ -72,7 +82,7 @@ func run(s *discordgo.Session) {
 		}
 		if text == "c" {
 			nicknameMenu(s)
-			return
+			return 0
 		}
 		selc, err = strconv.Atoi(text)
 		if err != nil {
@@ -87,4 +97,5 @@ func run(s *discordgo.Session) {
 		cchan = channel.ID
 	}
 	chatHandler(s)
+	return 0
 }
